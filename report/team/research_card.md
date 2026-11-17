@@ -29,7 +29,7 @@ Phần này nối tiếp phần mini research ở buổi lý thuyết (slide 62�
 
 - Lệnh benchmark đã chạy (argv; chạy trong `src/`): `python -m lab8.benchmark --shapes swarm,swarm_no_override --extra-shape swarm_no_override=bonus.swarm_no_override:run_claim --cases data/public_claims.jsonl --seeds 11,22,33,44,55 --out reports/bonus_ablation.json`. Trong phiên công cụ, lệnh được gọi qua `runpy` sau khi đổi cwd sang `src/`, với các đối số trên.
 - Run id / file report: `src/reports/bonus_ablation.json`; cặp dẫn chứng `R-swarm-C-002-s55` và `R-swarm_no_override-C-002-s55`. Report chứa run_id từng trial, không có run_id chung.
-- Kết quả so với hypothesis: được ủng hộ trên public. Mỗi biến thể có 70 trial (14 claim × 5 seed). Baseline pass 69/70; biến thể 70/70. Chỉ cặp C-002 seed 55 chuyển fail → pass (resolved → denied); 69 cặp còn lại giữ nguyên pass. Không có trial mới bị fail; pass^5 riêng C-002 từ 0 lên 1. Chưa thực hiện kiểm định thống kê hoặc hidden cho biến thể.
+- Kết quả so với hypothesis: kết quả public ủng hộ giả thuyết. Mỗi biến thể có 70 trial (14 claim × 5 seed). Baseline pass 69/70, biến thể pass 70/70. C-002 seed 55 chuyển fail → pass (resolved → denied); 69 cặp còn lại vẫn pass, không phát sinh trial fail mới. Pass^5 riêng C-002 tăng từ 0 lên 1. Biến thể chưa được kiểm định thống kê hoặc chạy hidden.
 
 | Metric (từ report sinh tự động) | Swarm gốc | Tắt model_override |
 | --- | ---: | ---: |
@@ -43,6 +43,6 @@ Phần này nối tiếp phần mini research ở buổi lý thuyết (slide 62�
 | Mean model calls | 3 | 3 |
 | Mean tool calls | 4.657143 | 4.642857 |
 
-Cost giảm không chỉ vì thêm một success vào mẫu số: trial C-002 seed 55 còn bỏ một lần tính lại quote, tool calls 6 → 5, cost 62.22 → 52.20 VND mô phỏng. Report benchmark không có safety counts riêng; không suy diễn secret leak/approval bypass bằng 0 chỉ từ pass rate hoặc từ crash suite. Cần audit safety riêng nếu báo hai số này.
+Cost/success giảm do có thêm một trial thành công và bớt chi phí tính lại quote ở C-002 seed 55: tool calls 6 → 5, cost 62.22 → 52.20 VND mô phỏng. Report benchmark không có safety counts riêng. Muốn báo secret leak/approval bypass bằng 0, cần audit riêng; pass rate và crash suite chưa đủ để xác nhận hai số này.
 
 - Giới hạn: MockLLM không phải model sản xuất, latency là `unavailable`. Điểm yếu Swarm đã được đề công bố; ablation chỉ kiểm chứng cơ chế cụ thể trong lab, không tái lập toàn bộ nghiên cứu MAST và không chứng minh topology Swarm tự thân gây lỗi.

@@ -103,20 +103,20 @@ Các bộ đếm forbidden leak, unexpected effect và existing ledger changed c
 ### Phần còn lại trước khi nộp
 
 - Hoàn thiện số liệu báo cáo nhóm, bảng đóng góp và commit nộp; kiểm tra `check_submission` đạt `0 FAIL`.
-- Tự kiểm hidden khi được cấp dữ liệu; chạy lại bằng chứng nếu code tiếp tục thay đổi.
+- Đã chạy self-check student_drop cho workflow/single/orchestrator: 40 claim × 5 seed mỗi shape, 600 trial tổng cộng; mỗi shape có 0 error, 0 leak_suspect, không báo lỗi trace. Nguồn: `src/reports/hidden_selfcheck.json`. Dữ liệu không có nhãn nên graded_trials = 0 và không có pass rate chính thức; không suy ra approval bypass hidden bằng 0. Sau merge bonus đã kiểm lại suite mặc định 68 passed và suite student/reliability 272 passed. Chạy lại bằng chứng nếu code tiếp tục thay đổi.
 - Code trong `bonus/` hiện phục vụ ablation research card, không đồng nghĩa đã hoàn thành một topic bonus.
 
 ## 5. Công cụ AI đã dùng
 
 - Claude Code: hỗ trợ đọc đề và code, rà coverage, viết test và biến thể ablation, chạy kiểm thử/benchmark, đọc paper và soạn báo cáo từ kết quả đã ghi nhận.
 - Thành viên đã tự chạy smoke, test host, test student Swarm và crash suite. Claude Code chạy lại test host/Swarm, kiểm test mới trên cả bốn shape, đối chiếu crash report và trích metrics trực tiếp từ report benchmark.
-- Cách kiểm chứng kết quả hỗ trợ bởi AI: chạy test thực tế, kiểm source-diff của biến thể, dùng evaluator chính thức đối chiếu ledger/trace, không sửa file thước đo hoặc bịa số liệu. Báo cáo không khẳng định thành viên đã tự đọc/giải thích toàn bộ code; cần bảo đảm hiểu các phần phụ trách trước khi trình bày.
+- Tôi kiểm chứng phần AI hỗ trợ bằng test thực tế, source-diff của biến thể và evaluator chính thức để đối chiếu ledger/trace. Tôi không sửa file thước đo hoặc bịa số liệu. Việc có các kết quả này chưa xác nhận tôi đã tự đọc và giải thích được toàn bộ code; tôi cần nắm được phần mình phụ trách trước khi trình bày.
 
 ## 6. Tự đánh giá
 
-Phần việc độc lập đã có code, test và bằng chứng chạy lại được: kiểm reliability, crash report và ablation một biến. Điểm mạnh của cách làm là tái sử dụng evaluator có sẵn, kiểm ledger thay vì chỉ tin output, và giữ nguyên code thước đo.
+Phần reliability, crash report và ablation một biến đã có code, test cùng lệnh chạy lại. Tôi dùng evaluator có sẵn, đối chiếu ledger với output và giữ nguyên code thước đo để các kết quả còn so sánh được.
 
-Sau tích hợp, cả bộ student/reliability đã pass và ADR chọn Workflow theo public. Đã có safety counts public độc lập; hạn chế còn lại là chưa có hidden grade, chưa audit mọi output sink hoặc biến thể ablation, nên chưa thể tuyên bố toàn bộ điều kiện chấm cuối đã đạt. Thí nghiệm dùng MockLLM và chỉ 14 claim public; lỗi baseline đã được đề công bố, vì vậy kết quả là kiểm chứng cơ chế trong lab, không phải khám phá mới hay kết luận về MAS trong production. Tự đánh giá ở đây dựa trên đầu ra đã kiểm chứng, không tự chấm điểm hoặc khẳng định năng lực chưa được kiểm tra.
+Sau tích hợp, bộ student/reliability đã pass; ADR chọn Workflow theo kết quả public. Audit riêng đã có safety counts public, nhưng chưa có hidden grade và chưa kiểm mọi output sink hoặc biến thể ablation. Vì vậy, tôi chưa kết luận toàn bộ điều kiện chấm cuối đã đạt. Thí nghiệm chỉ dùng MockLLM và 14 claim public, còn lỗi baseline đã được đề công bố. Kết quả xác nhận một cơ chế trong lab, chưa phải phát hiện mới hay kết luận cho MAS trong production. Phần tự đánh giá dựa trên những đầu ra đã kiểm chứng; tôi chưa tự chấm điểm hoặc khẳng định những năng lực chưa được kiểm tra.
 
 ## 7. Tài liệu tham khảo
 
