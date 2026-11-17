@@ -9,7 +9,7 @@
 
 ## 2. Mục tiêu và cách tiếp cận
 
-Nhóm triển khai cùng quy trình xử lý claim theo Workflow, Single Agent và Orchestrator; dùng Swarm có sẵn làm đối chứng. Mục tiêu là chọn kiến trúc ít tự chủ nhất vẫn xử lý đúng, thay vì mặc định multi-agent tốt hơn. Model không quyết số tiền và không ghi refund; dữ kiện order và policy hiện hành là nguồn sự thật, chữ trong ticket là dữ liệu không đáng tin.
+Nhóm triển khai quy trình xử lý claim bằng Workflow, Single Agent và Orchestrator, rồi so sánh với Swarm có sẵn. Nhóm chọn kiến trúc ít tự chủ nhất vẫn xử lý đúng; hiệu quả của multi-agent phải được kiểm tra bằng số liệu. Số tiền và thao tác ghi refund do code quyết định. Order và policy hiện hành là nguồn dữ kiện chính; nội dung ticket cần được đối chiếu trước khi sử dụng.
 
 Chia việc: Lê Hải Lân phụ trách Workflow và tích hợp; Đỗ Triệu Đức Phương phụ trách Single; Vũ Xuân Bách phụ trách Orchestrator/handoff; Nguyễn Duy Mạnh phụ trách reliability/evaluation và nghiên cứu. Nhóm kiểm baseline trước, triển khai ba shape song song, bổ sung kiểm thử crash/retry, tích hợp rồi benchmark. Mạnh thực hiện ablation độc lập trên Swarm trong lúc chờ tích hợp.
 
@@ -17,11 +17,11 @@ Chia việc: Lê Hải Lân phụ trách Workflow và tích hợp; Đỗ Triệu
 
 ### Workflow (A)
 
-Pipeline cố định: đọc `get_claim_view` → thiếu order_id thì `needs_info` → `lookup_order` theo principal, không thấy đơn thì `escalated` → `compute_compensation` → quote bằng 0 thì `denied`, quote dương thì gọi host. Không có model call. Các nhánh kết thúc dùng `finish()` để lấy ledger/audit thực và tạo trace. Trace ghi quote hoặc quyết định ngắn gọn, không dump dữ liệu thô.
+Workflow đọc claim bằng `get_claim_view`. Nếu thiếu order_id, hàm trả `needs_info`. Tiếp theo, `lookup_order` kiểm tra đơn theo principal; nếu không thấy đơn, kết quả là `escalated`. `compute_compensation` tính quote: bằng 0 thì trả `denied`, dương thì chuyển cho host. Luồng này không gọi model. Mỗi nhánh kết thúc dùng `finish()` để lấy ledger/audit thực và ghi trace. Trace chỉ ghi quote hoặc quyết định cần thiết, không dump dữ liệu thô.
 
 ### Single Agent (B)
 
-Dùng `run_react(max_steps=8, worker=True)`. Mỗi lần quyết định đều tính MockLLM call vào budget, nhưng MockLLM chỉ trả text nên code hiện tại chọn action tường minh theo observation: lookup_order → lookup_policy → lookup_refund_history → compute_compensation. Đây là vòng lặp ReAct-shaped có điều phối bằng code, không phải bằng chứng về khả năng model tự lập kế hoạch. Registry worker chỉ đọc; sau vòng lặp, code chuyển quote đầy đủ cho host. Step cap/kết quả bất hợp lệ trả `failed`; exception thông thường chỉ ghi loại lỗi để tránh lộ dữ liệu. InjectedCrash được flush trace rồi truyền ra ngoài.
+Single dùng `run_react(max_steps=8, worker=True)` và tính mỗi MockLLM call vào budget. Vì MockLLM chỉ trả text, code chọn action theo observation, lần lượt gọi lookup_order, lookup_policy, lookup_refund_history và compute_compensation. Vòng lặp có dạng ReAct nhưng phần điều phối vẫn do code thực hiện, nên kết quả chưa đánh giá được khả năng model tự lập kế hoạch. Worker chỉ được dùng registry đọc. Sau vòng lặp, code chuyển quote đầy đủ cho host. Khi chạm step cap hoặc nhận kết quả bất hợp lệ, hàm trả `failed`. Với exception thông thường, trace chỉ ghi loại lỗi để tránh lộ dữ liệu; với InjectedCrash, hàm ghi trace xuống file rồi truyền exception ra ngoài.
 
 ### Orchestrator (C)
 
@@ -57,21 +57,21 @@ Workflow/Single/Orchestrator pass 70/70. Swarm pass 69/70, fail C-002 seed 55 (`
 
 ### Reliability và lựa chọn kiến trúc
 
-Sau bản sửa test Orchestrator, suite mặc định có **63 passed**; sau khi thêm test audit safety, suite mặc định đạt **64 passed**. Suite student/reliability đã kiểm sau tích hợp có **272 passed**. `src/reports/crash.json` ghi **20/20**. Test TV4 bổ sung 24 trường hợp cho bốn shape: ba mốc crash × approval cap/order top-up, kiểm persisted state qua connection mới rồi resume hai lần; xác nhận quote đầy đủ, effect đúng và ledger/audit/checkpoint không bị nhân đôi.
+Sau bản sửa test Orchestrator, suite mặc định có **63 passed**; sau khi thêm test audit safety, suite mặc định đạt **64 passed**. Sau merge bonus, lần kiểm lại có **68 passed, 272 deselected** ở suite mặc định và **272 passed, 68 deselected** ở suite student/reliability. `src/reports/crash.json` ghi **20/20**. Test TV4 bổ sung 24 trường hợp cho bốn shape: ba mốc crash × approval cap/order top-up, kiểm persisted state qua connection mới rồi resume hai lần; xác nhận quote đầy đủ, effect đúng và ledger/audit/checkpoint không bị nhân đôi.
 
-Chọn **Workflow**: độ đúng public ngang Single/Orchestrator nhưng cost/success thấp nhất và không cần model. Crash suite có sẵn chủ yếu kiểm host và một trường hợp Swarm; bằng chứng Workflow còn dựa trên student/reliability tests. Audit safety public độc lập cho cả bốn shape không ghi nhận secret leak hoặc approval bypass; chạy lại bằng `python scripts/audit_public_safety.py` trong `src/`. Chưa có hidden report hoặc self-check hidden; không suy ra đã đạt ngưỡng hidden hay mọi must-pass trên hidden từ kết quả public. Chi tiết quyết định và điều kiện đổi kiến trúc: `decision_adr.md`.
+Chọn **Workflow**: độ đúng public ngang Single/Orchestrator nhưng cost/success thấp nhất và không cần model. Crash suite có sẵn chủ yếu kiểm host và một trường hợp Swarm; bằng chứng Workflow còn dựa trên student/reliability tests. Audit safety public độc lập cho cả bốn shape không ghi nhận secret leak hoặc approval bypass; chạy lại bằng `python scripts/audit_public_safety.py` trong `src/`. Đã chạy self-check trên student_drop không nhãn: 40 claim × 5 seed × 3 shape = 600 trial; mỗi shape có 200 trial, error_trials = 0, leak_suspect_trials = 0 và không có lỗi trace được báo. Nguồn: `src/reports/hidden_selfcheck.json`. Mỗi shape trả 95 denied, 90 resolved, 5 needs_info và 10 escalated; đây là phân bố output, chưa phải nhãn đúng. Pass rate, pass^5, variance và cost/success đều null vì graded_trials = 0. Chưa có hidden grade chính thức, chưa xác nhận approval bypass trên hidden hoặc ngưỡng pass rate ≥ 0.75. Chi tiết quyết định và điều kiện đổi kiến trúc: `decision_adr.md`.
 
 ### Nghiên cứu R2 và ablation
 
-Áp dụng MAST của Cemri et al. (2025) để đặt giả thuyết lỗi Swarm thuộc FC3 / FM-3.3 (Incorrect verification): đã có dữ kiện order nhưng lại dùng ticket. Đã đọc trace `R-swarm-C-002-s55`: handoff → investigator có order O-202 với delay_days=2 → model_override thành 5 → quote 20.000 VND theo SHIP-LATE-03. Trial benchmark trả resolved thay vì denied. Dữ kiện đúng đã được lấy về nhưng bị ghi đè, hỗ trợ cách gán FM-3.3 hơn là chỉ suy từ một trial fail; đây vẫn là nhãn do nhóm diễn giải theo Appendix A, không phải nhãn tác giả paper gán hoặc một nghiên cứu agreement. Biến thể `bonus.swarm_no_override` chỉ vô hiệu hóa điều kiện override, đổi tên shape để tách trace; test source-diff kiểm phạm vi thay đổi. Baseline không bị sửa.
+Áp dụng MAST của Cemri et al. (2025) để đặt giả thuyết lỗi Swarm thuộc FC3 / FM-3.3 (Incorrect verification): đã có dữ kiện order nhưng lại dùng ticket. Đã đọc trace `R-swarm-C-002-s55`: handoff → investigator có order O-202 với delay_days=2 → model_override thành 5 → quote 20.000 VND theo SHIP-LATE-03. Trial benchmark trả resolved thay vì denied. Trace cho thấy dữ kiện đúng đã được lấy về rồi bị ghi đè. Nhóm dựa vào diễn biến này và định nghĩa trong Appendix A để gán FM-3.3. Nhãn do nhóm diễn giải, chưa được tác giả paper xác nhận và chưa có nghiên cứu agreement. Biến thể `bonus.swarm_no_override` chỉ vô hiệu hóa điều kiện override, đổi tên shape để tách trace; test source-diff kiểm phạm vi thay đổi. Baseline không bị sửa.
 
 Nguồn: `src/reports/bonus_ablation.json`. Mỗi nhánh 70 trial; baseline 69/70 so với biến thể 70/70; pass^5 0.928571 → 1, variance 0.000816327 → 0, cost/success 49.566957 → 48.715714 VND mô phỏng. Chỉ C-002 seed 55 chuyển fail → pass; 69 cặp còn lại giữ nguyên pass. Model calls giữ nguyên, nhưng trial này giảm một tool call tính lại quote và cost 62.22 → 52.20. Hypothesis được ủng hộ trên public; không kết luận topology Swarm tự thân gây lỗi. Phương pháp, nguồn và lệnh tái lập: `research_card.md`. Đây là ablation cho bài chính, không tự nhận đã hoàn thành một topic bonus.
 
 ## 5. Khó khăn và cách xử lý
 
-- **Shape stub trước tích hợp:** test reliability từng có 18 failed, 6 passed vì ba shape không phát sinh InjectedCrash. Không bỏ/skip assertion; sau tích hợp, cả suite student/reliability đạt 272 passed.
-- **Sai dữ liệu test Orchestrator:** `python -m pytest -q` từng có 1 failed, 62 passed: test missing order dùng C-009, nhận denied thay vì needs_info. Đối chiếu public thấy C-009 có order O-404; C-004 mới thiếu order_id. TV3 sửa test/comment sang C-004 tại `78c64d6`, không sửa business logic hoặc nhãn để chiều test. Suite mặc định sau đó đạt 63 passed.
-- **Không truy cập được nguồn paper lúc đầu:** công cụ báo lỗi DNS; nhóm để trống kết luận chưa xác minh, không bịa nội dung. Khi arXiv truy cập lại được, đã đọc §3–5 và Appendix A của v3 để cập nhật claim/boundary.
+- Trước tích hợp, test reliability có 18 failed, 6 passed vì ba shape còn stub và chưa phát sinh InjectedCrash. Nhóm giữ nguyên assertion; sau tích hợp, suite student/reliability đạt 272 passed.
+- `python -m pytest -q` từng có 1 failed, 62 passed ở test missing order của Orchestrator: test dùng C-009 và nhận denied thay vì needs_info. Dữ liệu public cho thấy C-009 có order O-404, còn C-004 mới thiếu order_id. TV3 sửa claim và comment sang C-004 tại `78c64d6`, giữ nguyên business logic và nhãn. Suite mặc định sau đó đạt 63 passed.
+- Lần đầu truy cập paper, công cụ gặp lỗi DNS nên nhóm chưa điền kết luận từ nguồn. Sau khi arXiv truy cập lại được, nhóm đọc §3–5 và Appendix A của v3 để bổ sung claim/boundary.
 
 ## 6. Tổng hợp đóng góp
 
