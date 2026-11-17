@@ -29,6 +29,7 @@ Gợi ý chia vai:
 
 | Người | Vai | Commit | Test đã thêm hoặc sửa |
 | --- | --- | --- | --- |
+| Đỗ Triệu Đức Phương|Single Agent | feat: done single agent | test_single_agent.py |
 | Lê Hải Lân | workflow | #update workflow | test_public_matrix.py::test_public_single_run_cases[workflow-*], test_t11, test_t12 |
 
 ## Cá nhân
