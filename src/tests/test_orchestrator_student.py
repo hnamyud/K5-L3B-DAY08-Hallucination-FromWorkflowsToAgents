@@ -34,8 +34,8 @@ def test_orchestrator_unknown_claim_returns_failed(tmp_path: Path):
 
 def test_orchestrator_missing_order_returns_needs_info(tmp_path: Path):
     store = _make_store(tmp_path, "orchestrator-missing-order.sqlite")
-    # C-009 has missing order_id in public claims
-    result = run_claim("C-009", seed=11, store_path=str(store))
+    # C-004 has missing order_id (null) in public claims -> expected: needs_info
+    result = run_claim("C-004", seed=11, store_path=str(store))
     assert result.status == "needs_info"
     assert result.proposal_amount == 0
     assert result.error_reason == "missing_order_id"
