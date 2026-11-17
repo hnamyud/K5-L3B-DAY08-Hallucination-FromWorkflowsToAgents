@@ -1,0 +1,47 @@
+{
+  "confidence_intervals_95": {
+    "workflow": {
+      "mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0
+    },
+    "single": {
+      "mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0
+    },
+    "orchestrator": {
+      "mean": 1.0,
+      "ci_lower": 1.0,
+      "ci_upper": 1.0
+    },
+    "swarm": {
+      "mean": 0.9857,
+      "ci_lower": 0.9571,
+      "ci_upper": 1.0
+    }
+  },
+  "mcnemar_paired_tests": {
+    "workflow_vs_single": {
+      "b": 0,
+      "c": 0,
+      "n_discordant": 0,
+      "p_value": 1.0,
+      "significant_at_05": false
+    },
+    "workflow_vs_orchestrator": {
+      "b": 0,
+      "c": 0,
+      "n_discordant": 0,
+      "p_value": 1.0,
+      "significant_at_05": false
+    },
+    "workflow_vs_swarm": {
+      "b_shape_a_only": 1,
+      "c_shape_b_only": 0,
+      "n_discordant": 1,
+      "p_value": 1.0,
+      "significant_at_05": false
+    }
+  }
+}
