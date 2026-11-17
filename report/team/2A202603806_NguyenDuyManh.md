@@ -1,6 +1,6 @@
 # Báo cáo cá nhân — 2A202603806_NguyenDuyManh
 
-Báo cáo phần Reliability & Evaluation đã thực hiện trên nhánh `feature/evaluation`. Benchmark chính thức bốn shape và ADR cuối sẽ được cập nhật sau tích hợp; các kết quả dưới đây không đại diện cho bản nộp cuối của cả nhóm.
+Báo cáo phần Reliability & Evaluation đã thực hiện trên nhánh `feature/evaluation`. Đã kiểm tra ba shape sau tích hợp và đối chiếu benchmark chính thức bốn shape tại revision `10fe299`. ADR chọn Workflow theo số liệu public; hidden và hồ sơ nộp cuối vẫn cần kiểm tra.
 
 ## 1. Thông tin thành viên
 
@@ -62,11 +62,25 @@ Chỉ C-002 seed 55 chuyển fail → pass (resolved → denied); 69 cặp còn 
 
 Model calls giữ nguyên nhưng tool calls ở trial này giảm 6 → 5 do không còn tính lại quote; cost giảm 62.22 → 52.20 VND mô phỏng. Đây là hệ quả của can thiệp, không phải mọi lời gọi và nội dung prompt đều bất biến. Latency là `unavailable`; chưa có kiểm định thống kê, hidden hoặc safety counts riêng cho biến thể.
 
-### Phần còn phụ thuộc tích hợp
+### Kiểm tra sau tích hợp
 
-- Chạy toàn bộ student/reliability tests khi ba shape không còn stub.
-- Chạy lại crash suite và benchmark chính thức bốn shape để tạo `src/reports/benchmark.json`; ablation report không thay thế file này.
-- Chốt ADR, số liệu báo cáo nhóm, commit nộp và kiểm tra `check_submission` đạt `0 FAIL`.
+Sau khi merge bản sửa test TV3 tại revision `10fe299`, kiểm thử tích hợp cho kết quả **63 passed, 272 deselected** ở suite mặc định và **272 passed, 63 deselected** ở suite student/reliability. Các kết quả trước tích hợp ở bảng trên là lịch sử, không phải trạng thái hiện tại.
+
+Thành viên đã chạy lại crash suite đạt **20/20** và benchmark chính thức bốn shape; đã đối chiếu `src/reports/benchmark.json` (70 trial mỗi shape):
+
+| Shape | Pass rate | Pass^5 | Variance | Cost/success (VND mô phỏng) |
+| --- | ---: | ---: | ---: | ---: |
+| workflow | 1 | 1 | 0 | 27.857143 |
+| single | 1 | 1 | 0 | 46.802857 |
+| orchestrator | 1 | 1 | 0 | 47.852857 |
+| swarm | 0.985714 | 0.928571 | 0.000816327 | 49.566957 |
+
+Đã soạn `decision_adr.md` chọn Workflow: cùng pass rate với Single/Orchestrator, chi phí mô phỏng thấp nhất và ít tự chủ nhất. Run id dẫn chứng: `R-workflow-C-001-s11`. Chưa xác nhận hidden ≥ 0.75 hoặc safety counts độc lập. Steps là event trace, không đồng nhất với số vòng ReAct hoặc tốc độ thực tế.
+
+### Phần còn lại trước khi nộp
+
+- Hoàn thiện số liệu báo cáo nhóm, bảng đóng góp và commit nộp; kiểm tra `check_submission` đạt `0 FAIL`.
+- Tự kiểm hidden khi được cấp dữ liệu; chạy lại bằng chứng nếu code tiếp tục thay đổi.
 - Code trong `bonus/` hiện phục vụ ablation research card, không đồng nghĩa đã hoàn thành một topic bonus.
 
 ## 5. Công cụ AI đã dùng
@@ -79,7 +93,7 @@ Model calls giữ nguyên nhưng tool calls ở trial này giảm 6 → 5 do kh�
 
 Phần việc độc lập đã có code, test và bằng chứng chạy lại được: kiểm reliability, crash report và ablation một biến. Điểm mạnh của cách làm là tái sử dụng evaluator có sẵn, kiểm ledger thay vì chỉ tin output, và giữ nguyên code thước đo.
 
-Hạn chế hiện tại là ba shape chưa tích hợp trong các lần kiểm trên, nên chưa đánh giá được độ an toàn hoặc chọn kiến trúc cuối cho nhóm. Thí nghiệm dùng MockLLM và chỉ 14 claim public; lỗi baseline đã được đề công bố, vì vậy kết quả là kiểm chứng cơ chế trong lab, không phải khám phá mới hay kết luận về MAS trong production. Tự đánh giá ở đây dựa trên đầu ra đã kiểm chứng, không tự chấm điểm hoặc khẳng định năng lực chưa được kiểm tra.
+Sau tích hợp, cả bộ student/reliability đã pass và ADR chọn Workflow theo public. Hạn chế còn lại là chưa có hidden grade và safety counts độc lập, nên chưa thể tuyên bố toàn bộ điều kiện chấm cuối đã đạt. Thí nghiệm dùng MockLLM và chỉ 14 claim public; lỗi baseline đã được đề công bố, vì vậy kết quả là kiểm chứng cơ chế trong lab, không phải khám phá mới hay kết luận về MAS trong production. Tự đánh giá ở đây dựa trên đầu ra đã kiểm chứng, không tự chấm điểm hoặc khẳng định năng lực chưa được kiểm tra.
 
 ## 7. Tài liệu tham khảo
 
