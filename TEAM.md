@@ -2,17 +2,21 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm:
-- Lớp: L3A
-- Repo nhóm: `K5-L3A-DAY08-TenNhom-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt:
+- Tên nhóm: Hallucination
+- Lớp: L3B
+- Repo nhóm: `K5-L3B-DAY08-Hallucination-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
+- URL repo: https://github.com/hnamyud/K5-L3B-DAY08-Hallucination-FromWorkflowsToAgents.git
+- Nhánh nộp: main
+- Commit chốt:
 
 ## Thành viên
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 | Lê Hải Lân | 2A202603915 | lehailan110@gmail.com | laaaaanleeeee | workflow |
-|   2 |        |      |       |        |         |
+|   1 |Nguyễn Duy Mạnh|2A202603806|26ai.manhnd9@vinuni.edu.vn|hnamyud|ledger + evaluation|
+|   2 |Lê Hải Lân|2A202603915|26ai.lanlh@vinuni.edu.vn|laaaaanleeeee|workflow + integration|
+|   3 |Đỗ Triệu Đức Phương|2A202603843|26ai.phuongdtd@vinuni.edu.vn|ducphuong2005|single|
+|   4 |Vũ Xuân Bách|2A202603803|26ai.bachvx2@vinuni.edu.vn|bachvx1709|orchestrator + handoff|
 
 Gợi ý chia vai:
 
