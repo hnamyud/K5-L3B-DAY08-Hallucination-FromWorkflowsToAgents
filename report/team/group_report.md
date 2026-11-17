@@ -5,7 +5,7 @@
 - Tên nhóm: Hallucination
 - Thành viên: Nguyễn Duy Mạnh, Lê Hải Lân, Đỗ Triệu Đức Phương, Vũ Xuân Bách; thông tin và bằng chứng đóng góp trong `TEAM.md`.
 - Repo: https://github.com/hnamyud/K5-L3B-DAY08-Hallucination-FromWorkflowsToAgents
-- Revision code dùng cho benchmark: `10fe29976d24b360f999cae949d0c64e2f977a79`, trùng revision trong `decision_adr.md`; chưa tự nhận là commit nộp cuối. Nhánh nộp theo TEAM.md: `main`.
+- Revision code dùng cho benchmark: `fa0074022915797d867d6ac74e7ec8ad6c4ab8dd`
 
 ## 2. Mục tiêu và cách tiếp cận
 
