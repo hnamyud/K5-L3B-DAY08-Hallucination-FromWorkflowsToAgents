@@ -21,7 +21,8 @@ Reliability & Evaluation: bổ sung test crash/retry, kiểm tra approval cap v�
 - Thêm `src/tests/test_bonus_swarm_no_override.py`: hai trường hợp kiểm dữ kiện order và một test source-diff xác nhận phạm vi thay đổi của hàm `_run` so với baseline.
 - Chạy ablation trên 14 claim public × 5 seed cho mỗi biến thể, dùng benchmark/evaluator chính thức và SQLite mới cho từng trial. Không sửa tay JSON kết quả.
 - Đọc các phần liên quan của paper MAST (§3–5 và Appendix A), điền nguồn, kết luận, giới hạn và ánh xạ lỗi dự kiến vào `report/team/research_card.md`. Phân biệt giả thuyết với kết quả đo và không suy rộng sang model sản xuất.
-- Commit kỹ thuật: `8778b03` — `test: add reliability checks and controlled Swarm ablation`.
+- Bổ sung `src/scripts/audit_public_safety.py` và `src/tests/test_public_safety_audit.py`: audit 280 trial public, kiểm result, file thuộc scanner, Python stdout/stderr và ledger/approval thực. Test phản chứng xác nhận phát hiện secret chèn vào stdout và refund có approval bị thu hồi.
+- Commit kỹ thuật: `8778b03` — `test: add reliability checks and controlled Swarm ablation`. Hash này dẫn chứng phần reliability/ablation ban đầu, không đại diện các thay đổi audit safety đang chờ chốt commit.
 
 ## 4. Bằng chứng
 
@@ -75,7 +76,29 @@ Thành viên đã chạy lại crash suite đạt **20/20** và benchmark chính
 | orchestrator | 1 | 1 | 0 | 47.852857 |
 | swarm | 0.985714 | 0.928571 | 0.000816327 | 49.566957 |
 
-Đã soạn `decision_adr.md` chọn Workflow: cùng pass rate với Single/Orchestrator, chi phí mô phỏng thấp nhất và ít tự chủ nhất. Run id dẫn chứng: `R-workflow-C-001-s11`. Chưa xác nhận hidden ≥ 0.75 hoặc safety counts độc lập. Steps là event trace, không đồng nhất với số vòng ReAct hoặc tốc độ thực tế.
+Đã soạn `decision_adr.md` chọn Workflow: cùng pass rate với Single/Orchestrator, chi phí mô phỏng thấp nhất và ít tự chủ nhất. Run id dẫn chứng: `R-workflow-C-001-s11`. Chưa xác nhận hidden ≥ 0.75. Đã có safety counts public độc lập như phần audit dưới đây, không phải safety counts hidden. Steps là event trace, không đồng nhất với số vòng ReAct hoặc tốc độ thực tế.
+
+### Audit safety public sau tích hợp
+
+Chạy trong `src/`:
+
+```powershell
+python scripts/audit_public_safety.py
+python -m pytest -q tests/test_public_safety_audit.py
+```
+
+Report do script sinh: `src/reports/public_safety.json`, gồm 280 trial, mỗi shape 14 claim × 5 seed, database mới cho từng trial.
+
+| Shape | Secret leak | Approval bypass | Trace không hợp lệ |
+| --- | ---: | ---: | ---: |
+| workflow | 0/70 | 0/70 | 0/70 |
+| single | 0/70 | 0/70 | 0/70 |
+| orchestrator | 0/70 | 0/70 | 0/70 |
+| swarm | 0/70 | 0/70 | 0/70 |
+
+Các bộ đếm forbidden leak, unexpected effect và existing ledger changed cũng bằng 0 cho từng shape. Audit kiểm result, scanner-visible files, Python stdout/stderr, các effect mới và approval trỏ từ claim; không bao gồm output native process hoặc sink ngoài scanner, không chứng minh an toàn trên mọi đầu vào. Test phản chứng pass; sau khi thêm test audit, suite mặc định đạt **64 passed, 272 deselected**, thay cho mốc 63 passed trước đó. Chưa có safety counts cho biến thể ablation hoặc hidden.
+
+Đã đối chiếu trace `R-swarm-C-002-s55`: investigator có delay_days=2, model_override thành 5, quote 20.000 VND; kết hợp trial benchmark resolved thay vì denied hỗ trợ cách diễn giải FC3/FM-3.3 của nhóm. Không tự nhận đã có nghiên cứu agreement hoặc hoàn thành bonus B2.
 
 ### Phần còn lại trước khi nộp
 
@@ -93,7 +116,7 @@ Thành viên đã chạy lại crash suite đạt **20/20** và benchmark chính
 
 Phần việc độc lập đã có code, test và bằng chứng chạy lại được: kiểm reliability, crash report và ablation một biến. Điểm mạnh của cách làm là tái sử dụng evaluator có sẵn, kiểm ledger thay vì chỉ tin output, và giữ nguyên code thước đo.
 
-Sau tích hợp, cả bộ student/reliability đã pass và ADR chọn Workflow theo public. Hạn chế còn lại là chưa có hidden grade và safety counts độc lập, nên chưa thể tuyên bố toàn bộ điều kiện chấm cuối đã đạt. Thí nghiệm dùng MockLLM và chỉ 14 claim public; lỗi baseline đã được đề công bố, vì vậy kết quả là kiểm chứng cơ chế trong lab, không phải khám phá mới hay kết luận về MAS trong production. Tự đánh giá ở đây dựa trên đầu ra đã kiểm chứng, không tự chấm điểm hoặc khẳng định năng lực chưa được kiểm tra.
+Sau tích hợp, cả bộ student/reliability đã pass và ADR chọn Workflow theo public. Đã có safety counts public độc lập; hạn chế còn lại là chưa có hidden grade, chưa audit mọi output sink hoặc biến thể ablation, nên chưa thể tuyên bố toàn bộ điều kiện chấm cuối đã đạt. Thí nghiệm dùng MockLLM và chỉ 14 claim public; lỗi baseline đã được đề công bố, vì vậy kết quả là kiểm chứng cơ chế trong lab, không phải khám phá mới hay kết luận về MAS trong production. Tự đánh giá ở đây dựa trên đầu ra đã kiểm chứng, không tự chấm điểm hoặc khẳng định năng lực chưa được kiểm tra.
 
 ## 7. Tài liệu tham khảo
 
