@@ -90,8 +90,6 @@ Bảng đóng góp đầy đủ trong `TEAM.md`; mỗi người hoàn thiện b�
 - Steps đếm event trace; instrumentation của các shape khác nhau. Single có mean steps > 8 không đồng nghĩa vượt cap ReAct, và chênh steps không chứng minh chênh latency.
 - Benchmark bốn shape thay cả luồng/prompt/tool calls, không phải thí nghiệm chỉ thay topology. Ablation riêng kiểm một cơ chế, nhưng prompt draft và chi phí downstream vẫn có thể đổi theo kết quả can thiệp.
 - Nếu task mới đòi hỏi xử lý linh hoạt hoặc công việc song song thực sự, cần đo lại trước khi giữ/đổi quyết định Workflow. Không thêm agent chỉ vì kiến trúc phức tạp hơn.
-- Trước nộp cần chốt commit/hash, hoàn thiện hồ sơ, tự kiểm hidden khi được cấp và chạy `check_submission` đạt 0 FAIL. Các thay đổi code sau revision đã đo phải được kiểm và sinh report lại.
-- Tên lớp/repo hiện khai báo L3B, trong khi SUBMISSION.md của starter quy định L3A; nhóm cần xác nhận với coach hoặc sửa theo quy định trước khi nộp. Báo cáo giữ nguyên thông tin nhóm đang khai báo, không tự đổi lớp.
 
 ## 8. Tài liệu tham khảo
 
