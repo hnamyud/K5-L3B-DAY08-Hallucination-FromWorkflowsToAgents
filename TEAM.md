@@ -7,7 +7,7 @@
 - Repo nhóm: `K5-L3B-DAY08-Hallucination-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
 - URL repo: https://github.com/hnamyud/K5-L3B-DAY08-Hallucination-FromWorkflowsToAgents.git
 - Nhánh nộp: main
-- Commit chốt: `fa0074022915797d867d6ac74e7ec8ad6c4ab8dd`
+- Commit chốt: `129583306217f3314d36471d2206dfda8178270a`
 
 ## Thành viên
 
