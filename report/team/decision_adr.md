@@ -6,7 +6,7 @@
 - Pass rate / pass^5 / seed min-max / variance: public 70/70 = 1.0 / 1.0 / 1.0–1.0 / 0.0
 - Cost per success (mô phỏng, VND): 27.857142857142858
 - Crash safety: 20/20 theo src/reports/crash.json; bộ student/reliability tích hợp 272 passed, gồm test crash của Workflow
-- Secret leak / approval bypass: chưa có safety counts độc lập hoặc hidden report; 70/70 trial Workflow qua evaluator public, không thay thế xác nhận must-pass trên hidden
+- Secret leak / approval bypass: public Workflow 0/70 / 0/70 trial theo src/reports/public_safety.json; kiểm result, scanner-visible files, Python stdout/stderr và ledger/approval. Chưa có hidden report; không thay thế xác nhận must-pass trên hidden
 
 ## Vì sao shape này
 
@@ -33,5 +33,5 @@ Workflow ghi `quote` (amount_vnd, reason, clause_ids), `decision` cho needs_info
 - MockLLM và giá mô phỏng không đại diện model hoặc hóa đơn production; latency là `unavailable`.
 - Steps là số event trace, không phải số vòng ReAct hoặc latency; cách instrumentation khác nhau giữa shape nên không kết luận Workflow nhanh gấp số lần chênh steps.
 - Crash suite chính thức chủ yếu kiểm host và một trường hợp Swarm; độ an toàn Workflow còn được kiểm bằng student/reliability tests, không suy ra từ riêng 20/20.
-- Chưa có hidden grade, safety counts riêng hay kiểm định thống kê; không ghi approval_bypass_count/secret_leak_count bằng 0 khi chưa có report tương ứng.
+- Đã có safety counts public riêng trong public_safety.json; chưa có hidden grade hoặc kiểm định thống kê. Audit không bao phủ sink bên ngoài scanner hay output native process, không chứng minh an toàn trên mọi đầu vào.
 - Các số liệu lấy từ report do công cụ sinh; không sửa tay JSON.
