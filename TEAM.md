@@ -29,9 +29,10 @@ Gợi ý chia vai:
 
 | Người | Vai | Commit | Test đã thêm hoặc sửa |
 | --- | --- | --- | --- |
-| Đỗ Triệu Đức Phương | Single Agent | feat: done single agent | test_single_agent.py |
-| Lê Hải Lân | workflow | #update workflow | test_public_matrix.py::test_public_single_run_cases[workflow-*], test_t11, test_t12 |
+| Đỗ Triệu Đức Phương | Single Agent | b09d51d | test_single_agent.py |
+| Lê Hải Lân | Workflow | 9f9607e | test_public_matrix.py::test_public_single_run_cases[workflow-*], test_t11, test_t12 |
 | Vũ Xuân Bách | Orchestrator | 78c64d6 | test_orchestrator_student.py |
+| Nguyễn Duy Mạnh | Reliability & Evaluation | 8778b03 | src/tests/test_evaluation_reliability.py; src/tests/test_bonus_swarm_no_override.py |
 
 ## Cá nhân
 
